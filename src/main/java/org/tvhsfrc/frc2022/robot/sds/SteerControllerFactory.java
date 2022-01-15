@@ -1,7 +1,6 @@
-package com.swervedrivespecialties.swervelib;
+package org.tvhsfrc.frc2022.robot.sds;
 
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
-import org.tvhsfrc.frc2022.robot.sds.ModuleConfiguration;
 
 @FunctionalInterface
 public interface SteerControllerFactory<Controller extends SteerController, SteerConfiguration> {

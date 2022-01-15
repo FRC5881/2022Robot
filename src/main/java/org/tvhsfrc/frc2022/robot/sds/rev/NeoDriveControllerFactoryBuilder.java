@@ -1,13 +1,13 @@
-package com.swervedrivespecialties.swervelib.rev;
+package org.tvhsfrc.frc2022.robot.sds.rev;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
-import com.swervedrivespecialties.swervelib.DriveController;
-import com.swervedrivespecialties.swervelib.DriveControllerFactory;
+import org.tvhsfrc.frc2022.robot.sds.DriveController;
+import org.tvhsfrc.frc2022.robot.sds.DriveControllerFactory;
 import org.tvhsfrc.frc2022.robot.sds.ModuleConfiguration;
 
-import static com.swervedrivespecialties.swervelib.rev.RevUtils.checkNeoError;
+import static org.tvhsfrc.frc2022.robot.sds.rev.RevUtils.checkNeoError;
 
 public final class NeoDriveControllerFactoryBuilder {
     private double nominalVoltage = Double.NaN;

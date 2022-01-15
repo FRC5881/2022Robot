@@ -1,7 +1,6 @@
-package com.swervedrivespecialties.swervelib;
+package org.tvhsfrc.frc2022.robot.sds;
 
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import org.tvhsfrc.frc2022.robot.sds.ModuleConfiguration;
 
 public class SwerveModuleFactory<DriveConfiguration, SteerConfiguration> {
     private final ModuleConfiguration moduleConfiguration;

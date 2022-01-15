@@ -1,11 +1,11 @@
-package com.swervedrivespecialties.swervelib.ctre;
+package org.tvhsfrc.frc2022.robot.sds.ctre;
 
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
-import com.swervedrivespecialties.swervelib.AbsoluteEncoder;
-import com.swervedrivespecialties.swervelib.AbsoluteEncoderFactory;
+import org.tvhsfrc.frc2022.robot.sds.AbsoluteEncoder;
+import org.tvhsfrc.frc2022.robot.sds.AbsoluteEncoderFactory;
 
 public class CanCoderFactoryBuilder {
     private Direction direction = Direction.COUNTER_CLOCKWISE;
