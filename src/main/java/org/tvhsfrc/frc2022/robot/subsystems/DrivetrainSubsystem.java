@@ -5,6 +5,10 @@
 package org.tvhsfrc.frc2022.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import org.tvhsfrc.frc2022.robot.sds.Mk4ModuleConfiguration;
 import org.tvhsfrc.frc2022.robot.sds.Mk4SwerveModuleHelper;
 import org.tvhsfrc.frc2022.robot.sds.SdsModuleConfigurations;
@@ -72,6 +76,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule backRightModule;
 
   private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+
+  private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
+          navx.getRotation2d(),
+          new Pose2d(),
+          kinematics,
+          VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)), //TODO: Tune these
+          VecBuilder.fill(Units.degreesToRadians(0.01)),
+          VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
 
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
