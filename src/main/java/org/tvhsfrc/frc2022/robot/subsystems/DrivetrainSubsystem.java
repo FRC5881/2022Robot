@@ -9,6 +9,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import org.tvhsfrc.frc2022.robot.sds.Mk4ModuleConfiguration;
 import org.tvhsfrc.frc2022.robot.sds.Mk4SwerveModuleHelper;
 import org.tvhsfrc.frc2022.robot.sds.SdsModuleConfigurations;
@@ -175,5 +176,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
     frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
     backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
     backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+
+    // Let the drive team use the "USER" button on the RoboRIO to trigger a Gyro Reset
+    // Make sure the NavX is connected and not otherwise already calibrating first.
+    if (RobotController.getUserButton() && navx.isConnected() && !navx.isCalibrating()) {
+      System.out.println("Zeroed Gyroscope via USER button");
+      zeroGyroscope();
+    }
   }
 }
