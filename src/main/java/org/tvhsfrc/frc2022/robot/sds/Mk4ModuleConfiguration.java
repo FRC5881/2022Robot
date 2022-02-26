@@ -42,12 +42,17 @@ public class Mk4ModuleConfiguration {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Mk4ModuleConfiguration that = (Mk4ModuleConfiguration) o;
-        return Double.compare(that.getNominalVoltage(), getNominalVoltage()) == 0 && Double.compare(that.getDriveCurrentLimit(), getDriveCurrentLimit()) == 0 && Double.compare(that.getSteerCurrentLimit(), getSteerCurrentLimit()) == 0;
+        return Double.compare(that.getNominalVoltage(),
+                getNominalVoltage()) == 0 && Double.compare(that.getDriveCurrentLimit(),
+                getDriveCurrentLimit()) == 0 && Double.compare(that.getSteerCurrentLimit(),
+                getSteerCurrentLimit()) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getNominalVoltage(), getDriveCurrentLimit(), getSteerCurrentLimit());
+        return Objects.hash(getNominalVoltage(),
+                getDriveCurrentLimit(),
+                getSteerCurrentLimit());
     }
 
     @Override

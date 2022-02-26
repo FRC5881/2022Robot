@@ -8,11 +8,13 @@ package org.tvhsfrc.frc2022.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import org.tvhsfrc.frc2022.robot.commands.DefaultDriveCommand;
 import org.tvhsfrc.frc2022.robot.commands.ExampleCommand;
+import org.tvhsfrc.frc2022.robot.commands.IntakeDeployToggle;
 import org.tvhsfrc.frc2022.robot.subsystems.DrivetrainSubsystem;
 import org.tvhsfrc.frc2022.robot.subsystems.ExampleSubsystem;
-
+import org.tvhsfrc.frc2022.robot.subsystems.IntakeSubsystem;
 
 
 /**
@@ -26,6 +28,7 @@ public class RobotContainer
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     private final ExampleCommand autoCommand = new ExampleCommand(exampleSubsystem);
 
@@ -63,6 +66,9 @@ public class RobotContainer
     {
         // Add button to command mappings here.
         // See https://docs.wpilib.org/en/stable/docs/software/commandbased/binding-commands-to-triggers.html
+
+        JoystickButton xButton = new JoystickButton(driveController, XboxController.Button.kX.value);
+        xButton.toggleWhenPressed(new IntakeDeployToggle(intakeSubsystem));
     }
     
     
