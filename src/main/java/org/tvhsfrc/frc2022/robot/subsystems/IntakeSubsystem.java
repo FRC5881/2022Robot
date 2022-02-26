@@ -2,6 +2,7 @@ package org.tvhsfrc.frc2022.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.SparkMaxLimitSwitch;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -21,14 +22,27 @@ public class IntakeSubsystem extends SubsystemBase {
 
         intakeAdjMotor1.getPIDController().setFeedbackDevice(intakeAdjMotor1.getEncoder());
         intakeAdjMotor2.getPIDController().setFeedbackDevice(intakeAdjMotor2.getEncoder());
-        // TODO - find some spark examples to set position control to degrees
+
         intakeAdjMotor1.getEncoder().setPositionConversionFactor(360);
         intakeAdjMotor2.getEncoder().setPositionConversionFactor(360);
+
+        forwardLimit1 = intakeAdjMotor1.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed);
+        reverseLimit1 = intakeAdjMotor1.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed);
+        forwardLimit1.enableLimitSwitch(true);
+        reverseLimit1.enableLimitSwitch(true);
+        forwardLimit2 = intakeAdjMotor2.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed);
+        reverseLimit2 = intakeAdjMotor2.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed);
+        forwardLimit2.enableLimitSwitch(true);
+        reverseLimit2.enableLimitSwitch(true);
     }
 
     private final CANSparkMax rollerMotor = new CANSparkMax(20, CANSparkMaxLowLevel.MotorType.kBrushless);
     private final CANSparkMax intakeAdjMotor1 = new CANSparkMax(21, CANSparkMaxLowLevel.MotorType.kBrushless);
     private final CANSparkMax intakeAdjMotor2 = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
+    private final SparkMaxLimitSwitch forwardLimit1;
+    private final SparkMaxLimitSwitch reverseLimit1;
+    private final SparkMaxLimitSwitch forwardLimit2;
+    private final SparkMaxLimitSwitch reverseLimit2;
 
     private final double extendedPosition = 95;
     private final double insidePosition = 0;
