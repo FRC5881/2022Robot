@@ -47,4 +47,17 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 3;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(73.3886);
 
+    /**
+     * RoboRIO Input Channel for the A Sensor in the Intake
+     */
+    public static final int INTAKE_SENSOR_A_CHANNEL = 1;
+    /**
+     * RoboRIO Input Channel for the B Sensor in the Intake
+     */
+    public static final int INTAKE_SENSOR_B_CHANNEL = 2;
+
+    public static final int SHOOTER_MOTOR_1_ID = 20;
+    public static final int SHOOTER_MOTOR_2_ID = 21;
+    public static final int BELT_MOTOR_ID = 22;
+
 }

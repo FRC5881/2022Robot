@@ -1,28 +1,27 @@
 package org.tvhsfrc.frc2022.robot.subsystems;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-enum State {
-    Empty(),
-    IntakingFirst(),
-    HoldingFirst(),
-    IntakingSecond(),
-    Full(),
-    Firing()
-}
+import org.tvhsfrc.frc2022.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
+    enum State {
+        EMPTY,
+        INTAKING_FIRST,
+        HOLDING_FIRST,
+        INTAKING_SECOND,
+        FULL,
+        FIRING
+    }
 
-    private final CANSparkMax shooterMotor1 = new CANSparkMax(30, CANSparkMaxLowLevel.MotorType.kBrushless);
-    private final CANSparkMax shooterMotor2 = new CANSparkMax(31, CANSparkMaxLowLevel.MotorType.kBrushless);
-    private final CANSparkMax beltMotor = new CANSparkMax(32, CANSparkMaxLowLevel.MotorType.kBrushless);
+    private final CANSparkMax shooterMotor1 = new CANSparkMax(Constants.SHOOTER_MOTOR_1_ID, CANSparkMaxLowLevel.MotorType.kBrushless);
+    private final CANSparkMax shooterMotor2 = new CANSparkMax(Constants.SHOOTER_MOTOR_2_ID, CANSparkMaxLowLevel.MotorType.kBrushless);
+    private final CANSparkMax beltMotor = new CANSparkMax(Constants.BELT_MOTOR_ID, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-    private final DigitalInput sensorA = new DigitalInput(60);
-    private final DigitalInput sensorB = new DigitalInput(61);
+    private final DigitalInput sensorA = new DigitalInput(Constants.INTAKE_SENSOR_A_CHANNEL);
+    private final DigitalInput sensorB = new DigitalInput(Constants.INTAKE_SENSOR_B_CHANNEL);
 
     public ShooterSubsystem() {
         shooterMotor1.getPIDController().setP(1);
@@ -39,81 +38,73 @@ public class ShooterSubsystem extends SubsystemBase {
         beltMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     }
 
-    private static double INTAKE_SPEED = 0.1;
-
-    private int cargoCount = 0;
+    private static final double INTAKE_SPEED = 0.1;
 
     private boolean lastA = false;
     private boolean lastB = false;
 
-    State state = State.Empty;
+    private State state = State.EMPTY;
 
-    public void SomeReallyLongNameJustUsedAsAPlaceHolderUntilIFindABetterOne() {
+    /**
+     * Runs the intake state machine. Expected to be run by the intake command continuously.
+     */
+    public void runIntake() {
         switch (state) {
-            case Empty:
-                if (sensorA.get() && !lastA) {
+            case EMPTY: // Empty State - Expected to be Motor stopped and 0 balls in tunnel
+                if (sensorA.get() && !lastA) { // Transition to next state when Sensor A goes low->high
                     beltMotor.set(INTAKE_SPEED);
-                    state = State.IntakingFirst;
+                    state = State.INTAKING_FIRST;
                 }
                 break;
-
-            case IntakingFirst:
-                //A: low to high
-                if (!sensorA.get() && lastA) {
+            case INTAKING_FIRST: // First ball intake in progress -- Expected belt motor running
+                if (!sensorA.get() && lastA) { // Transition to holding (intake complete) on A going high->low
                     beltMotor.set(0);
-                    state = State.HoldingFirst;
+                    state = State.HOLDING_FIRST;
                 }
                 break;
-
-            case HoldingFirst:
-                //A: high to low
-                //can either fire or load second
-                cargoCount++;
-                if(sensorA.get() && !lastA) {
-                    state = State.IntakingSecond;
+            case HOLDING_FIRST: // First ball intake complete -- Expected belt motor stopped
+                if (sensorA.get() && !lastA) { // Transition to start 2nd intake on A going low->high
+                    state = State.INTAKING_SECOND;
                     beltMotor.set(INTAKE_SPEED);
                 }
                 break;
-
-            case IntakingSecond:
-                //A: low to high
-                if(sensorB.get() && !lastB) {
+            case INTAKING_SECOND: // 2nd ball intake in progress - expecting belt motor on
+                if (sensorB.get() && !lastB) { // Transition to full when 2nd sensor (B) goes low->high
                     beltMotor.set(0);
-                    state = State.Full;
+                    state = State.FULL;
                 }
                 break;
-
-            case Full:
+            case FULL:
                 // Noop - Exit of this state by driver command
                 break;
-
-            case Firing:
+            case FIRING:
                 // Noop - Entry and exit of this state by driver command
                 break;
         }
+
+        // Update "last" sensor values to current values to detect state changes
         lastA = sensorA.get();
         lastB = sensorB.get();
-
-
     }
 
     /**
-     * Shoot - called continuously while desiring to fire....
+     * Shoot - called continuously while desiring to fire.... Preempts intake command and updates state.
+     * User expected to hold the command active until all balls exit.
      */
     public void shoot() {
         // Temp
         double targetVelocity = 5000;
 
-        if (state == State.Full || state == State.HoldingFirst) {
-            state = State.Firing;
+        if (state == State.FULL || state == State.HOLDING_FIRST) {
+            state = State.FIRING;
             // TODO: Vision Check - are we aligned?
             // TODO: Distance Check - Set correct velocity
             shooterMotor1.getPIDController().setReference(targetVelocity, CANSparkMax.ControlType.kVelocity);
             shooterMotor2.getPIDController().setReference(targetVelocity, CANSparkMax.ControlType.kVelocity);
-        } else if (state == State.Firing) {
-            if (shooterMotor1.getEncoder().getVelocity() > (targetVelocity*.9)
-                    && shooterMotor1.getEncoder().getVelocity() < (targetVelocity*1.1)
-                    && shooterMotor2.getEncoder().getVelocity() < (targetVelocity*1.1)) {
+        } else if (state == State.FIRING) {
+            if (shooterMotor1.getEncoder().getVelocity() > (targetVelocity * .9)
+                    && shooterMotor1.getEncoder().getVelocity() < (targetVelocity * 1.1)
+                    && shooterMotor2.getEncoder().getVelocity() < (targetVelocity * 1.1)) {
                 beltMotor.set(1);
             }
         } else {
@@ -128,12 +119,31 @@ public class ShooterSubsystem extends SubsystemBase {
         beltMotor.set(0);
         shooterMotor1.stopMotor();
         shooterMotor2.stopMotor();
-        state = State.Empty;
-        cargoCount = 0;
+        state = State.EMPTY;
     }
 
+    /**
+     * Emergency helper to reset the state to empty in case of error
+     */
+    public void resetState() {
+        stopShooting(); // Basically does it.
+    }
 
+    /**
+     * Emergency helper to reset the state to Holding One Ball in case of error
+     */
+    public void resetStateOneHolding() {
+        stopShooting();
+        state = State.HOLDING_FIRST;
+    }
 
+    /**
+     * Emergency helper to reset the state to Full in case of error
+     */
+    public void resetStateFull() {
+        stopShooting();
+        state = State.FULL;
+    }
 
 
     @Override
@@ -146,7 +156,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         // This method will be called once per scheduler run during simulation
     }
-
 
 
 }
