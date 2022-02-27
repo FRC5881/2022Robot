@@ -13,7 +13,6 @@ public class IntakeDeployToggle extends CommandBase {
 
     @Override
     public void initialize() {
-
     }
 
     @Override
@@ -23,12 +22,12 @@ public class IntakeDeployToggle extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-
+        if (interrupted) // Only stop the motors if we're interrupted by an aborted command
+            intakeSubsystem.stopArmMotors();
     }
 
     @Override
     public boolean isFinished() {
-    return false;
-    //TODO: Finish Me
+        return true; // This command is a simple toggle, after setting the new motor position it's done.
     }
 }
