@@ -49,9 +49,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * Changes the deployment from extended to inside or vice versa
      */
     public void toggleDeployment() {
-        // TODO: Change to use targetPosition
-        double curPos = intakeArmMotor1.getEncoder().getPosition();
-        if (curPos < 47 || curPos > 340) {
+        if (targetPosition == insidePosition) {
             // Set to extendedPosition
             targetPosition = extendedPosition;
             intakeArmMotor1.getPIDController().setReference(targetPosition, CANSparkMax.ControlType.kPosition);
