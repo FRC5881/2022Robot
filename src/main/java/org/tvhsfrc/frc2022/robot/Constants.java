@@ -47,4 +47,38 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 3;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(73.3886);
 
+    /**
+     * RoboRIO Input Channel for the A Sensor in the Intake
+     */
+    public static final int INTAKE_SENSOR_A_CHANNEL = 1;
+    /**
+     * RoboRIO Input Channel for the B Sensor in the Intake
+     */
+    public static final int INTAKE_SENSOR_B_CHANNEL = 2;
+
+    /**
+     * SparkMAX Shooter Motor 1 CAN bus ID
+     */
+    public static final int SHOOTER_MOTOR_1_ID = 20;
+    /**
+     * SparkMAX Shooter Motor 2 CAN bus ID
+     */
+    public static final int SHOOTER_MOTOR_2_ID = 21;
+    /**
+     * SparkMAX Belt Motor CAN bus ID
+     */
+    public static final int BELT_MOTOR_ID = 22;
+
+    /**
+     * SparkMAX Intake Arm Motor 1 CAN bus ID
+     */
+    public static final int INTAKE_ARM_MOTOR_1_ID = 25;
+    /**
+     * SparkMAX Intake Arm Motor 2 CAN bus ID
+     */
+    public static final int INTAKE_ARM_MOTOR_2_ID = 26;
+    /**
+     * SparkMAX Intake Roller Motor CAN bus ID
+     */
+    public static final int INTAKE_ROLLER_MOTOR_ID = 27;
 }
