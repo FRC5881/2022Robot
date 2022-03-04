@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.photonvision.PhotonCamera;
 import org.tvhsfrc.frc2022.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -44,6 +45,18 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean lastB = false;
 
     private State state = State.EMPTY;
+
+    //TODO: rename camera
+    PhotonCamera camera = new PhotonCamera("hub");
+
+
+
+
+
+
+
+
+
 
     /**
      * Runs the intake state machine. Expected to be run by the intake command continuously.
@@ -97,7 +110,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
         if (state == State.FULL || state == State.HOLDING_FIRST) {
             state = State.FIRING;
+
             // TODO: Vision Check - are we aligned?
+            // Query the latest result from PhotonVision
+            var result = camera.getLatestResult();
+
+
+
             // TODO: Distance Check - Set correct velocity
             shooterMotor1.getPIDController().setReference(targetVelocity, CANSparkMax.ControlType.kVelocity);
             shooterMotor2.getPIDController().setReference(targetVelocity, CANSparkMax.ControlType.kVelocity);
@@ -115,6 +134,8 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * Called once to stop shooting and transition to Empty state
      */
+
+
     public void stopShooting() {
         beltMotor.set(0);
         shooterMotor1.stopMotor();
