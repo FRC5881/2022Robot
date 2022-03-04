@@ -5,6 +5,10 @@
 
 package org.tvhsfrc.frc2022.robot;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -14,6 +18,11 @@ package org.tvhsfrc.frc2022.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    /**
+     * Robot Mass (kg)
+     */
+    public static final double ROBOT_MASS = Units.lbsToKilograms(130); // TODO Fix me
+
     /**
      * The left-to-right distance between the drivetrain wheels
      *
@@ -26,6 +35,12 @@ public final class Constants {
      * Should be measured from center to center.
      */
     public static final double DRIVETRAIN_WHEELBASE_METERS = 0.7239;
+
+    /**
+     * Model moment of intertia as a square slab slightly bigger than wheelbase with axis through center
+     */
+    //FIXME: Not right - not a square
+    public static final double ROBOT_MOI_KGM2 = 1.0/12.0 * ROBOT_MASS * Math.pow((DRIVETRAIN_TRACKWIDTH_METERS*1.1),2) * 2;
 
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 10;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 11;
@@ -47,6 +62,16 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 3;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(73.3886);
 
+    public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(
+            // Front left
+            new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            // Front right
+            new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            // Back left
+            new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            // Back right
+            new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0)
+    );
     /**
      * RoboRIO Input Channel for the A Sensor in the Intake
      */
@@ -81,4 +106,13 @@ public final class Constants {
      * SparkMAX Intake Roller Motor CAN bus ID
      */
     public static final int INTAKE_ROLLER_MOTOR_ID = 27;
+
+    public static final String PHOTONVISION_NAME_SHOOTER = "shooter";
+    public static final String PHOTONVISION_NAME_INTAKE = "intake";
+    public static final double PHOTONVISION_SHOOTER_CAM_ANGLE = 0; // TODO
+    public static final double PHOTONVISION_SHOOTER_CAM_HEIGHT = 0;
+
+    public static final double PHOTONVISION_INTAKE_CAM_ANGLE = 0; // TODO
+    public static final double PHOTONVISION_INTAKE_CAM_HEIGHT = 0;
+
 }

@@ -8,13 +8,15 @@ package org.tvhsfrc.frc2022.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.swervelib.SwerveDrivetrainModel;
+import frc.swervelib.SwerveSubsystem;
+import org.photonvision.PhotonVersion;
 import org.tvhsfrc.frc2022.robot.commands.DefaultDriveCommand;
 import org.tvhsfrc.frc2022.robot.commands.ExampleCommand;
 import org.tvhsfrc.frc2022.robot.commands.IntakeDeployToggle;
-import org.tvhsfrc.frc2022.robot.subsystems.DrivetrainSubsystem;
-import org.tvhsfrc.frc2022.robot.subsystems.ExampleSubsystem;
-import org.tvhsfrc.frc2022.robot.subsystems.IntakeSubsystem;
+import org.tvhsfrc.frc2022.robot.subsystems.*;
 
 
 /**
@@ -25,31 +27,33 @@ import org.tvhsfrc.frc2022.robot.subsystems.IntakeSubsystem;
  */
 public class RobotContainer
 {
+    public static SwerveDrivetrainModel swerveDrivetrainModel;
+    public static SwerveSubsystem swerveSubsystem;
+
+    public final PhotonVision photonVision = new PhotonVision();
+
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
-    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    //private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     private final ExampleCommand autoCommand = new ExampleCommand(exampleSubsystem);
 
 
-    private final XboxController driveController = new XboxController(0);
+    private final XboxController5881 driveController = new XboxController5881(0, 0.1);
 
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer()
     {
-        // Set up the default command for the drivetrain.
-        // The controls are for field-oriented driving:
-        // Left stick Y axis -> forward and backwards movement
-        // Left stick X axis -> left and right movement
-        // Right stick X axis -> rotation
-        drivetrainSubsystem.setDefaultCommand(new DefaultDriveCommand(
-                drivetrainSubsystem,
-                () -> -modifyAxis(driveController.getLeftY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-                () -> -modifyAxis(driveController.getLeftX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-                () -> -modifyAxis(driveController.getRightX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-        ));
+        swerveDrivetrainModel = SwerveDriveHelper.createBearSwerve();
+        swerveSubsystem = SwerveDriveHelper.createSwerveSubsystem(swerveDrivetrainModel);
+
+        swerveSubsystem.setDefaultCommand(new RunCommand(() ->
+                swerveDrivetrainModel.setModuleStates(driveController.getSwerveInput()), swerveSubsystem));
+
+        photonVision.fieldSetup(swerveDrivetrainModel.getField());
+
 
         // Configure the button bindings
         configureButtonBindings();
