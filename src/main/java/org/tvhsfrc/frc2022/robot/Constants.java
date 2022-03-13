@@ -107,10 +107,13 @@ public final class Constants {
      */
     public static final int INTAKE_ROLLER_MOTOR_ID = 27;
 
+    public static final int CLIMBER_MOTOR_1_ID = 28;
+    public static final int CLIMBER_MOTOR_2_ID = 29;
+
     public static final String PHOTONVISION_NAME_SHOOTER = "shooter";
     public static final String PHOTONVISION_NAME_INTAKE = "intake";
-    public static final double PHOTONVISION_SHOOTER_CAM_ANGLE = 0; // TODO
-    public static final double PHOTONVISION_SHOOTER_CAM_HEIGHT = 0;
+    public static final double PHOTONVISION_SHOOTER_CAM_ANGLE = 58;
+    public static final double PHOTONVISION_SHOOTER_CAM_HEIGHT = Units.inchesToMeters(28);
 
     public static final double PHOTONVISION_INTAKE_CAM_ANGLE = 0; // TODO
     public static final double PHOTONVISION_INTAKE_CAM_HEIGHT = 0;
