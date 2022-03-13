@@ -9,12 +9,11 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import org.tvhsfrc.frc2022.robot.commands.DefaultDriveCommand;
-import org.tvhsfrc.frc2022.robot.commands.ExampleCommand;
-import org.tvhsfrc.frc2022.robot.commands.IntakeDeployToggle;
+import org.tvhsfrc.frc2022.robot.commands.*;
+import org.tvhsfrc.frc2022.robot.subsystems.ClimberSubsystem;
 import org.tvhsfrc.frc2022.robot.subsystems.DrivetrainSubsystem;
-import org.tvhsfrc.frc2022.robot.subsystems.ExampleSubsystem;
 import org.tvhsfrc.frc2022.robot.subsystems.IntakeSubsystem;
+import org.tvhsfrc.frc2022.robot.subsystems.ShooterSubsystem;
 
 
 /**
@@ -26,11 +25,10 @@ import org.tvhsfrc.frc2022.robot.subsystems.IntakeSubsystem;
 public class RobotContainer
 {
     // The robot's subsystems and commands are defined here...
-    private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-
-    private final ExampleCommand autoCommand = new ExampleCommand(exampleSubsystem);
+    private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+    private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
 
     private final XboxController driveController = new XboxController(0);
@@ -51,6 +49,10 @@ public class RobotContainer
                 () -> -modifyAxis(driveController.getRightX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
         ));
 
+        climberSubsystem.setDefaultCommand(new ClimbCommand(
+                climberSubsystem, () -> driveController.getPOV(0) == 0, () -> driveController.getPOV(0) == 180
+        ));
+
         // Configure the button bindings
         configureButtonBindings();
     }
@@ -64,11 +66,17 @@ public class RobotContainer
      */
     private void configureButtonBindings()
     {
-        // Add button to command mappings here.
-        // See https://docs.wpilib.org/en/stable/docs/software/commandbased/binding-commands-to-triggers.html
+        JoystickButton aButton = new JoystickButton(driveController, XboxController.Button.kA.value);
+        aButton.toggleWhenPressed(new IntakeDeployToggle(intakeSubsystem));
 
-        JoystickButton xButton = new JoystickButton(driveController, XboxController.Button.kX.value);
-        xButton.toggleWhenPressed(new IntakeDeployToggle(intakeSubsystem));
+        JoystickButton lTrigger = new JoystickButton(driveController, XboxController.Button.kLeftBumper.value);
+        lTrigger.toggleWhenPressed(new IntakeRollerToggle(intakeSubsystem));
+
+        JoystickButton xboxButton = new JoystickButton(driveController, XboxController.Button.kStart.value);
+        xboxButton.whenPressed(new ResetGyroCommand(drivetrainSubsystem));
+
+        JoystickButton rTrigger = new JoystickButton(driveController, XboxController.Button.kRightBumper.value);
+        rTrigger.whenHeld(new ShootCommand(shooterSubsystem));
     }
     
     
@@ -80,7 +88,8 @@ public class RobotContainer
     public Command getAutonomousCommand()
     {
         // An ExampleCommand will run in autonomous
-        return autoCommand;
+        //return autoCommand;
+        return null;
     }
 
     private static double deadband(double value, double deadband) {

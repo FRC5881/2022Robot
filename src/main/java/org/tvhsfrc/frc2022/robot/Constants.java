@@ -5,6 +5,8 @@
 
 package org.tvhsfrc.frc2022.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -81,4 +83,15 @@ public final class Constants {
      * SparkMAX Intake Roller Motor CAN bus ID
      */
     public static final int INTAKE_ROLLER_MOTOR_ID = 27;
+
+    public static final int CLIMBER_MOTOR_1_ID = 28;
+    public static final int CLIMBER_MOTOR_2_ID = 29;
+
+    public static final String PHOTONVISION_NAME_SHOOTER = "shooter";
+    public static final String PHOTONVISION_NAME_INTAKE = "intake";
+    public static final double PHOTONVISION_SHOOTER_CAM_ANGLE = 58;
+    public static final double PHOTONVISION_SHOOTER_CAM_HEIGHT = Units.inchesToMeters(28);
+
+    public static final double PHOTONVISION_INTAKE_CAM_ANGLE = 0; // TODO
+    public static final double PHOTONVISION_INTAKE_CAM_HEIGHT = 0;
 }
