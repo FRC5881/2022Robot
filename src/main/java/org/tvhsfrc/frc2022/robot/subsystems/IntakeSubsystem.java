@@ -22,8 +22,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public IntakeSubsystem() {
         // Invert encoder for one of the motors
         //TODO: Needs testing
-        intakeArmMotor1.getEncoder().setInverted(true);
-        intakeArmMotor2.getEncoder().setInverted(false);
+        intakeArmMotor1.setInverted(true);
+        intakeArmMotor2.setInverted(false);
 
         //TODO: These may be horribly, horribly, wrong. Please test.
         intakeArmMotor1.getPIDController().setP(0.2);
