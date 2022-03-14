@@ -8,21 +8,27 @@ import java.util.function.BooleanSupplier;
 public class ClimbCommand extends CommandBase {
     private ClimberSubsystem climber;
 
-    private BooleanSupplier up, down;
+    private BooleanSupplier up, down, left, right;
 
-    public ClimbCommand(ClimberSubsystem climber, BooleanSupplier up, BooleanSupplier down) {
+    public ClimbCommand(ClimberSubsystem climber, BooleanSupplier up, BooleanSupplier down, BooleanSupplier left, BooleanSupplier right) {
         this.climber = climber;
         this.up = up;
         this.down = down;
+        this.left = left;
+        this.right = right;
         addRequirements(climber);
     }
 
     @Override
     public void execute() {
-        if (up.getAsBoolean() && ! down.getAsBoolean()) {
+        if (up.getAsBoolean()) {
             climber.climb();
-        } else if (!up.getAsBoolean() && down.getAsBoolean()) {
+        } else if (down.getAsBoolean()) {
             climber.lower();
+        } else if (left.getAsBoolean()) {
+            climber.climbLeft();
+        } else if (right.getAsBoolean()) {
+            climber.climbRight();
         } else {
             climber.stop();
         }

@@ -35,8 +35,6 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
 
     private double p, i, d;
 
-    private double targetVelocity = 5000;
-
     enum SHOT_LOCATION {
         TARMAC_LINE,
         SAFE_POINT,
@@ -70,9 +68,9 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         shotVelocities.put(SHOT_LOCATION.SAFE_POINT, 4500.0);
         shotVelocities.put(SHOT_LOCATION.HAIL_MARY, 5500.0);
 
-        shotLocationSendableChooser.setDefaultOption("Tarmac", SHOT_LOCATION.TARMAC_LINE);
+        shotLocationSendableChooser.addOption("Tarmac", SHOT_LOCATION.TARMAC_LINE);
         shotLocationSendableChooser.addOption("Safe Point", SHOT_LOCATION.SAFE_POINT);
-        shotLocationSendableChooser.addOption("Hail Mary", SHOT_LOCATION.HAIL_MARY);
+        shotLocationSendableChooser.setDefaultOption("Hail Mary", SHOT_LOCATION.HAIL_MARY);
 
         SmartDashboard.putData(shotLocationSendableChooser);
     }
@@ -88,6 +86,9 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
      * Runs the intake state machine. Expected to be run by the intake command continuously.
      */
     public void runIntake() {
+        beltMotor.set(intakeSpeed);
+
+        /*
         switch (state) {
             case EMPTY: // Empty State - Expected to be Motor stopped and 0 balls in tunnel
                 if (sensorA.get() && !lastA) { // Transition to next state when Sensor A goes low->high
@@ -124,6 +125,8 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         // Update "last" sensor values to current values to detect state changes
         lastA = sensorA.get();
         lastB = sensorB.get();
+
+         */
     }
 
     /**
@@ -131,6 +134,9 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
      * User expected to hold the command active until all balls exit.
      */
     public void shoot() {
+        /*
+        if (state.equals(State.EMPTY)) { state = State.FULL; }
+
         if (state == State.FULL || state == State.HOLDING_FIRST) {
             state = State.FIRING;
             // TODO: Vision Check - are we aligned?
@@ -145,6 +151,17 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
             }
         } else {
             System.err.println("Invalid Shooter State Transition");
+        }
+        */
+
+        shooterMotor1.getPIDController().setReference(getShotVelocity(), CANSparkMax.ControlType.kVelocity);
+        shooterMotor2.getPIDController().setReference(getShotVelocity(), CANSparkMax.ControlType.kVelocity);
+
+        if (shooterMotor1.getEncoder().getVelocity() > (getShotVelocity() * .95)
+                && shooterMotor2.getEncoder().getVelocity() > (getShooter1Velocity() * .95)
+                && shooterMotor1.getEncoder().getVelocity() < (getShotVelocity() * 1.1)
+                && shooterMotor2.getEncoder().getVelocity() < (getShotVelocity() * 1.1)) {
+            beltMotor.set(1);
         }
     }
 
@@ -237,6 +254,14 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         return shotLocationSendableChooser.getSelected();
     }
 
+    public boolean getSensorA() {
+        return !sensorA.get();
+    }
+
+    public boolean getSensorB() {
+        return !sensorB.get();
+    }
+
     @Override
     public void periodic() {
     }
@@ -258,6 +283,14 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         shotVelocities.put(shot, velocity);
     }
 
+    public double getShooter1Velocity() {
+        return shooterMotor1.getEncoder().getVelocity();
+    }
+
+    public double getShooter2Velocity() {
+        return shooterMotor2.getEncoder().getVelocity();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
@@ -270,6 +303,10 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         builder.addBooleanProperty("VisionValid", this::isVisionValid, null);
         builder.addDoubleProperty("VisionOffset", this::getVisionCenterOffset, null);
         builder.addStringProperty("IntakeState", this::getStateString, null);
+        builder.addBooleanProperty("SensorA", this::getSensorA, null);
+        builder.addBooleanProperty("SensorB", this::getSensorB, null);
+        builder.addDoubleProperty("Shooter1Vel", this::getShooter1Velocity, null);
+        builder.addDoubleProperty("Shooter2Vel", this::getShooter2Velocity, null);
         builder.addDoubleProperty(SHOT_LOCATION.TARMAC_LINE.toString(), () -> getShotVelocity(SHOT_LOCATION.TARMAC_LINE), value -> setShotVelocity(SHOT_LOCATION.TARMAC_LINE, value));
         builder.addDoubleProperty(SHOT_LOCATION.SAFE_POINT.toString(), () -> getShotVelocity(SHOT_LOCATION.SAFE_POINT), value -> setShotVelocity(SHOT_LOCATION.SAFE_POINT, value));
         builder.addDoubleProperty(SHOT_LOCATION.HAIL_MARY.toString(), () -> getShotVelocity(SHOT_LOCATION.HAIL_MARY), value -> setShotVelocity(SHOT_LOCATION.HAIL_MARY, value));

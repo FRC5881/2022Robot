@@ -52,11 +52,11 @@ public final class Constants {
     /**
      * RoboRIO Input Channel for the A Sensor in the Intake
      */
-    public static final int INTAKE_SENSOR_A_CHANNEL = 1;
+    public static final int INTAKE_SENSOR_A_CHANNEL = 9;
     /**
      * RoboRIO Input Channel for the B Sensor in the Intake
      */
-    public static final int INTAKE_SENSOR_B_CHANNEL = 2;
+    public static final int INTAKE_SENSOR_B_CHANNEL = 0;
 
     /**
      * SparkMAX Shooter Motor 1 CAN bus ID

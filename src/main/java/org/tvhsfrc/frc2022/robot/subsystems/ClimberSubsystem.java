@@ -14,7 +14,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private double p,i,d;
 
-    private double climbSpeed = 0.2;
+    private double climbSpeed = 0.4;
 
     public ClimberSubsystem() {
         climberLeft.setInverted(false);
@@ -26,7 +26,7 @@ public class ClimberSubsystem extends SubsystemBase {
         climberLeft.getEncoder().setPositionConversionFactor(CLIMBER_SPOOL_CIRCUMFERENCE * CLIMBER_GEAR_RATIO / 42d ); // TODO: Check this - 42 ticks/rev
         climberRight.getEncoder().setPositionConversionFactor(CLIMBER_SPOOL_CIRCUMFERENCE * CLIMBER_GEAR_RATIO / 42d);
 
-        p=0.2;// TODO: Probably horribly wrong
+        p=0.4;// TODO: Probably horribly wrong
         i=0;
         d=0.002;
 
@@ -49,8 +49,16 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     private void setSpeed(double speed) {
-        climberRight.set(speed);
+        setLeftSpeed(speed);
+        setRightSpeed(speed);
+    }
+
+    private void setLeftSpeed(double speed) {
         climberLeft.set(speed);
+    }
+
+    private void setRightSpeed(double speed) {
+        climberRight.set(speed);
     }
 
     public double getClimbSpeed() {
@@ -64,6 +72,10 @@ public class ClimberSubsystem extends SubsystemBase {
     public void climb() {
         setSpeed(climbSpeed);
     }
+
+    public void climbLeft() { setLeftSpeed(climbSpeed); }
+
+    public void climbRight() { setRightSpeed(climbSpeed); }
 
     public void lower() {
         setSpeed(-1 * climbSpeed);

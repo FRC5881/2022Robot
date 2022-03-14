@@ -50,7 +50,8 @@ public class RobotContainer
         ));
 
         climberSubsystem.setDefaultCommand(new ClimbCommand(
-                climberSubsystem, () -> driveController.getPOV(0) == 0, () -> driveController.getPOV(0) == 180
+                climberSubsystem, () -> driveController.getPOV(0) == 0, () -> driveController.getPOV(0) == 180,
+                () -> driveController.getPOV(0) == 270, () -> driveController.getPOV(0) == 90
         ));
 
         // Configure the button bindings
@@ -75,8 +76,11 @@ public class RobotContainer
         JoystickButton xboxButton = new JoystickButton(driveController, XboxController.Button.kStart.value);
         xboxButton.whenPressed(new ResetGyroCommand(drivetrainSubsystem));
 
-        JoystickButton rTrigger = new JoystickButton(driveController, XboxController.Button.kRightBumper.value);
-        rTrigger.whenHeld(new ShootCommand(shooterSubsystem));
+        JoystickButton lBumper = new JoystickButton(driveController, XboxController.Button.kLeftBumper.value);
+        lBumper.whenHeld(new ShootCommand(shooterSubsystem));
+
+        JoystickButton rBumper = new JoystickButton(driveController, XboxController.Button.kRightBumper.value);
+        rBumper.whenHeld(new RollBeltCommand(shooterSubsystem));
     }
     
     

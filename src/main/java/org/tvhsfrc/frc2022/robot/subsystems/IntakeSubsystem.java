@@ -17,7 +17,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final CANSparkMax intakeArmMotor1 = new CANSparkMax(Constants.INTAKE_ARM_MOTOR_1_ID, CANSparkMaxLowLevel.MotorType.kBrushless);
     private final CANSparkMax intakeArmMotor2 = new CANSparkMax(Constants.INTAKE_ARM_MOTOR_2_ID, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-    private double extendedPosition = 95;
+    private double extendedPosition = 9.4;
     private double insidePosition = 0;
 
     private double targetPosition = insidePosition; // Set initial starting configuration
@@ -33,9 +33,9 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeArmMotor2.setInverted(false);
 
         // PID Defaults
-        p=0.2;
+        p=0.09;
         i=0;
-        d=0.002;
+        d=0.005;
 
         //TODO: These may be horribly, horribly, wrong. Please test.
         intakeArmMotor1.getPIDController().setP(p);
@@ -48,13 +48,19 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeArmMotor1.getPIDController().setFeedbackDevice(intakeArmMotor1.getEncoder());
         intakeArmMotor2.getPIDController().setFeedbackDevice(intakeArmMotor2.getEncoder());
 
-        intakeArmMotor1.getEncoder().setPositionConversionFactor(360d/42d); // Per REV site, 42 counts/rev
-        intakeArmMotor2.getEncoder().setPositionConversionFactor(360d/42d);
+        intakeArmMotor1.getEncoder().setPositionConversionFactor(1); // Per REV site, 42 counts/rev
+        intakeArmMotor2.getEncoder().setPositionConversionFactor(1);
 
         intakeArmMotor1.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen).enableLimitSwitch(true);
         intakeArmMotor1.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen).enableLimitSwitch(true);
         intakeArmMotor2.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen).enableLimitSwitch(true);
         intakeArmMotor2.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen).enableLimitSwitch(true);
+
+        intakeArmMotor1.getPIDController().setOutputRange(-1, 0.08);
+        intakeArmMotor2.getPIDController().setOutputRange(-1, 0.08);
+
+        intakeArmMotor1.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        intakeArmMotor2.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
         Shuffleboard.getTab("Intake").add(this);
     }
