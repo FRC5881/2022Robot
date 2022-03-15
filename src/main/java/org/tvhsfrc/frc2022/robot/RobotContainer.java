@@ -13,9 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.swervelib.SwerveDrivetrainModel;
 import frc.swervelib.SwerveSubsystem;
 import org.photonvision.PhotonVersion;
-import org.tvhsfrc.frc2022.robot.commands.DefaultDriveCommand;
-import org.tvhsfrc.frc2022.robot.commands.ExampleCommand;
-import org.tvhsfrc.frc2022.robot.commands.IntakeDeployToggle;
+import org.tvhsfrc.frc2022.robot.commands.*;
 import org.tvhsfrc.frc2022.robot.subsystems.*;
 
 
@@ -37,7 +35,7 @@ public class RobotContainer
     //private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
-    private final ExampleCommand autoCommand = new ExampleCommand(exampleSubsystem);
+    private Command autoCommand;
 
 
     private final XboxController5881 driveController = new XboxController5881(0, 0.1);
@@ -54,6 +52,7 @@ public class RobotContainer
 
         photonVision.fieldSetup(swerveDrivetrainModel.getField());
 
+        autoCommand = new Go5FtBack(swerveSubsystem, intakeSubsystem);
 
         // Configure the button bindings
         configureButtonBindings();
