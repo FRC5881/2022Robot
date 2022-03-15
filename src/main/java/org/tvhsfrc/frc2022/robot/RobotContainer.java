@@ -15,6 +15,11 @@ import frc.swervelib.SwerveSubsystem;
 import org.photonvision.PhotonVersion;
 import org.tvhsfrc.frc2022.robot.commands.*;
 import org.tvhsfrc.frc2022.robot.subsystems.*;
+import org.tvhsfrc.frc2022.robot.commands.*;
+import org.tvhsfrc.frc2022.robot.subsystems.ClimberSubsystem;
+import org.tvhsfrc.frc2022.robot.subsystems.DrivetrainSubsystem;
+import org.tvhsfrc.frc2022.robot.subsystems.IntakeSubsystem;
+import org.tvhsfrc.frc2022.robot.subsystems.ShooterSubsystem;
 
 
 /**
@@ -31,9 +36,10 @@ public class RobotContainer
     public final PhotonVision photonVision = new PhotonVision();
 
     // The robot's subsystems and commands are defined here...
-    private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
-    //private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+    private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
     private Command autoCommand;
 
@@ -54,6 +60,11 @@ public class RobotContainer
 
         autoCommand = new Go5FtBack(swerveSubsystem, intakeSubsystem);
 
+        climberSubsystem.setDefaultCommand(new ClimbCommand(
+                climberSubsystem, () -> driveController.getPOV(0) == 0, () -> driveController.getPOV(0) == 180,
+                () -> driveController.getPOV(0) == 270, () -> driveController.getPOV(0) == 90
+        ));
+
         // Configure the button bindings
         configureButtonBindings();
     }
@@ -67,11 +78,20 @@ public class RobotContainer
      */
     private void configureButtonBindings()
     {
-        // Add button to command mappings here.
-        // See https://docs.wpilib.org/en/stable/docs/software/commandbased/binding-commands-to-triggers.html
+        JoystickButton aButton = new JoystickButton(driveController, XboxController.Button.kA.value);
+        aButton.toggleWhenPressed(new IntakeDeployToggle(intakeSubsystem));
 
-        JoystickButton xButton = new JoystickButton(driveController, XboxController.Button.kX.value);
-        xButton.toggleWhenPressed(new IntakeDeployToggle(intakeSubsystem));
+        JoystickButton lTrigger = new JoystickButton(driveController, XboxController.Button.kLeftBumper.value);
+        lTrigger.toggleWhenPressed(new IntakeRollerToggle(intakeSubsystem));
+
+        JoystickButton xboxButton = new JoystickButton(driveController, XboxController.Button.kStart.value);
+        xboxButton.whenPressed(new ResetGyroCommand(drivetrainSubsystem));
+
+        JoystickButton lBumper = new JoystickButton(driveController, XboxController.Button.kLeftBumper.value);
+        lBumper.whenHeld(new ShootCommand(shooterSubsystem));
+
+        JoystickButton rBumper = new JoystickButton(driveController, XboxController.Button.kRightBumper.value);
+        rBumper.whenHeld(new RollBeltCommand(shooterSubsystem));
     }
     
     

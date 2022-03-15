@@ -2,12 +2,19 @@ package org.tvhsfrc.frc2022.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.photonvision.PhotonCamera;
 import org.tvhsfrc.frc2022.robot.Constants;
 
-public class ShooterSubsystem extends SubsystemBase {
+import java.util.HashMap;
+import java.util.Map;
+
+public class ShooterSubsystem extends SubsystemBase implements Sendable {
     enum State {
         EMPTY,
         INTAKING_FIRST,
@@ -24,22 +31,51 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DigitalInput sensorA = new DigitalInput(Constants.INTAKE_SENSOR_A_CHANNEL);
     private final DigitalInput sensorB = new DigitalInput(Constants.INTAKE_SENSOR_B_CHANNEL);
 
+    private final PhotonCamera shooterCamera = new PhotonCamera("shooter");
+
+    private double p, i, d;
+
+    enum SHOT_LOCATION {
+        TARMAC_LINE,
+        SAFE_POINT,
+        HAIL_MARY
+    }
+
+    private final Map<SHOT_LOCATION, Double> shotVelocities;
+
+    private final SendableChooser<SHOT_LOCATION> shotLocationSendableChooser = new SendableChooser<>();
+
     public ShooterSubsystem() {
-        shooterMotor1.getPIDController().setP(1);
-        shooterMotor1.getPIDController().setI(0.001);
-        shooterMotor1.getPIDController().setD(0.01);
+        p = 1;
+        i = 0.001;
+        d = 0.01;
+
+        shooterMotor1.getPIDController().setP(p);
+        shooterMotor1.getPIDController().setI(i);
+        shooterMotor1.getPIDController().setD(d);
         shooterMotor1.setIdleMode(CANSparkMax.IdleMode.kCoast);
 
         shooterMotor2.setInverted(true);
-        shooterMotor2.getPIDController().setP(1);
-        shooterMotor2.getPIDController().setI(0.001);
-        shooterMotor2.getPIDController().setD(0.01);
+        shooterMotor2.getPIDController().setP(p);
+        shooterMotor2.getPIDController().setI(i);
+        shooterMotor2.getPIDController().setD(d);
         shooterMotor2.setIdleMode(CANSparkMax.IdleMode.kCoast);
 
         beltMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
+        shotVelocities = new HashMap<>();
+        shotVelocities.put(SHOT_LOCATION.TARMAC_LINE, 3500.0);
+        shotVelocities.put(SHOT_LOCATION.SAFE_POINT, 4500.0);
+        shotVelocities.put(SHOT_LOCATION.HAIL_MARY, 5500.0);
+
+        shotLocationSendableChooser.addOption("Tarmac", SHOT_LOCATION.TARMAC_LINE);
+        shotLocationSendableChooser.addOption("Safe Point", SHOT_LOCATION.SAFE_POINT);
+        shotLocationSendableChooser.setDefaultOption("Hail Mary", SHOT_LOCATION.HAIL_MARY);
+
+        SmartDashboard.putData(shotLocationSendableChooser);
     }
 
-    private static final double INTAKE_SPEED = 0.1;
+    private double intakeSpeed = 0.1;
 
     private boolean lastA = false;
     private boolean lastB = false;
@@ -62,10 +98,13 @@ public class ShooterSubsystem extends SubsystemBase {
      * Runs the intake state machine. Expected to be run by the intake command continuously.
      */
     public void runIntake() {
+        beltMotor.set(intakeSpeed);
+
+        /*
         switch (state) {
             case EMPTY: // Empty State - Expected to be Motor stopped and 0 balls in tunnel
                 if (sensorA.get() && !lastA) { // Transition to next state when Sensor A goes low->high
-                    beltMotor.set(INTAKE_SPEED);
+                    beltMotor.set(intakeSpeed);
                     state = State.INTAKING_FIRST;
                 }
                 break;
@@ -78,7 +117,7 @@ public class ShooterSubsystem extends SubsystemBase {
             case HOLDING_FIRST: // First ball intake complete -- Expected belt motor stopped
                 if (sensorA.get() && !lastA) { // Transition to start 2nd intake on A going low->high
                     state = State.INTAKING_SECOND;
-                    beltMotor.set(INTAKE_SPEED);
+                    beltMotor.set(intakeSpeed);
                 }
                 break;
             case INTAKING_SECOND: // 2nd ball intake in progress - expecting belt motor on
@@ -98,6 +137,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // Update "last" sensor values to current values to detect state changes
         lastA = sensorA.get();
         lastB = sensorB.get();
+
+         */
     }
 
     /**
@@ -105,8 +146,8 @@ public class ShooterSubsystem extends SubsystemBase {
      * User expected to hold the command active until all balls exit.
      */
     public void shoot() {
-        // Temp
-        double targetVelocity = 5000;
+        /*
+        if (state.equals(State.EMPTY)) { state = State.FULL; }
 
         if (state == State.FULL || state == State.HOLDING_FIRST) {
             state = State.FIRING;
@@ -118,17 +159,40 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
             // TODO: Distance Check - Set correct velocity
-            shooterMotor1.getPIDController().setReference(targetVelocity, CANSparkMax.ControlType.kVelocity);
-            shooterMotor2.getPIDController().setReference(targetVelocity, CANSparkMax.ControlType.kVelocity);
+            shooterMotor1.getPIDController().setReference(getShotVelocity(), CANSparkMax.ControlType.kVelocity);
+            shooterMotor2.getPIDController().setReference(getShotVelocity(), CANSparkMax.ControlType.kVelocity);
         } else if (state == State.FIRING) {
-            if (shooterMotor1.getEncoder().getVelocity() > (targetVelocity * .9)
-                    && shooterMotor1.getEncoder().getVelocity() < (targetVelocity * 1.1)
-                    && shooterMotor2.getEncoder().getVelocity() < (targetVelocity * 1.1)) {
+            if (shooterMotor1.getEncoder().getVelocity() > (getShotVelocity() * .9)
+                    && shooterMotor1.getEncoder().getVelocity() < (getShotVelocity() * 1.1)
+                    && shooterMotor2.getEncoder().getVelocity() < (getShotVelocity() * 1.1)) {
                 beltMotor.set(1);
             }
         } else {
             System.err.println("Invalid Shooter State Transition");
         }
+        */
+
+        shooterMotor1.getPIDController().setReference(getShotVelocity(), CANSparkMax.ControlType.kVelocity);
+        shooterMotor2.getPIDController().setReference(getShotVelocity(), CANSparkMax.ControlType.kVelocity);
+
+        if (shooterMotor1.getEncoder().getVelocity() > (getShotVelocity() * .95)
+                && shooterMotor2.getEncoder().getVelocity() > (getShooter1Velocity() * .95)
+                && shooterMotor1.getEncoder().getVelocity() < (getShotVelocity() * 1.1)
+                && shooterMotor2.getEncoder().getVelocity() < (getShotVelocity() * 1.1)) {
+            beltMotor.set(1);
+        }
+    }
+
+    public boolean isVisionValid() {
+        return shooterCamera.getLatestResult().hasTargets(); // TODO: Yeah... this is uh... ugh.
+    }
+
+    public double getVisionCenterOffset() {
+        if (!isVisionValid()) {
+            return 0;
+        }
+
+        return shooterCamera.getLatestResult().getBestTarget().getYaw();
     }
 
     /**
@@ -166,11 +230,60 @@ public class ShooterSubsystem extends SubsystemBase {
         state = State.FULL;
     }
 
+    public double getP() {
+        return p;
+    }
+
+    public void setP(double p) {
+        this.p = p;
+    }
+
+    public double getI() {
+        return i;
+    }
+
+    public void setI(double i) {
+        this.i = i;
+    }
+
+    public double getD() {
+        return d;
+    }
+
+    public void setD(double d) {
+        this.d = d;
+    }
+
+    public double getIntakeSpeed() {
+        return intakeSpeed;
+    }
+
+    public void setIntakeSpeed(double intakeSpeed) {
+        this.intakeSpeed = intakeSpeed;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public String getStateString() {
+        return getState().toString();
+    }
+
+    public SHOT_LOCATION getCurrentShotLocation() {
+        return shotLocationSendableChooser.getSelected();
+    }
+
+    public boolean getSensorA() {
+        return !sensorA.get();
+    }
+
+    public boolean getSensorB() {
+        return !sensorB.get();
+    }
 
     @Override
     public void periodic() {
-
-
     }
 
     @Override
@@ -178,5 +291,44 @@ public class ShooterSubsystem extends SubsystemBase {
         // This method will be called once per scheduler run during simulation
     }
 
+    public double getShotVelocity() {
+        return getShotVelocity(shotLocationSendableChooser.getSelected());
+    }
 
+    public double getShotVelocity(SHOT_LOCATION shot) {
+        return shotVelocities.get(shot);
+    }
+
+    public void setShotVelocity(SHOT_LOCATION shot, double velocity) {
+        shotVelocities.put(shot, velocity);
+    }
+
+    public double getShooter1Velocity() {
+        return shooterMotor1.getEncoder().getVelocity();
+    }
+
+    public double getShooter2Velocity() {
+        return shooterMotor2.getEncoder().getVelocity();
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+        builder.setSmartDashboardType("Intake");
+        builder.addStringProperty("CurrentShotLoc", () -> getCurrentShotLocation().toString(), null);
+        builder.addDoubleProperty("IntakeSpeed", this::getIntakeSpeed, this::setIntakeSpeed);
+        builder.addDoubleProperty("PID-p", this::getP, this::setP);
+        builder.addDoubleProperty("PID-i", this::getI, this::setI);
+        builder.addDoubleProperty("PID-d", this::getD, this::setD);
+        builder.addBooleanProperty("VisionValid", this::isVisionValid, null);
+        builder.addDoubleProperty("VisionOffset", this::getVisionCenterOffset, null);
+        builder.addStringProperty("IntakeState", this::getStateString, null);
+        builder.addBooleanProperty("SensorA", this::getSensorA, null);
+        builder.addBooleanProperty("SensorB", this::getSensorB, null);
+        builder.addDoubleProperty("Shooter1Vel", this::getShooter1Velocity, null);
+        builder.addDoubleProperty("Shooter2Vel", this::getShooter2Velocity, null);
+        builder.addDoubleProperty(SHOT_LOCATION.TARMAC_LINE.toString(), () -> getShotVelocity(SHOT_LOCATION.TARMAC_LINE), value -> setShotVelocity(SHOT_LOCATION.TARMAC_LINE, value));
+        builder.addDoubleProperty(SHOT_LOCATION.SAFE_POINT.toString(), () -> getShotVelocity(SHOT_LOCATION.SAFE_POINT), value -> setShotVelocity(SHOT_LOCATION.SAFE_POINT, value));
+        builder.addDoubleProperty(SHOT_LOCATION.HAIL_MARY.toString(), () -> getShotVelocity(SHOT_LOCATION.HAIL_MARY), value -> setShotVelocity(SHOT_LOCATION.HAIL_MARY, value));
+    }
 }
