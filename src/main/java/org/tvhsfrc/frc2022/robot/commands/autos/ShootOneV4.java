@@ -1,4 +1,4 @@
-package org.tvhsfrc.frc2022.robot.commands;
+package org.tvhsfrc.frc2022.robot.commands.autos;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
