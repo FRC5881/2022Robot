@@ -13,7 +13,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.swervelib.SwerveDrivetrainModel;
 import frc.swervelib.SwerveSubsystem;
 import org.tvhsfrc.frc2022.robot.commands.*;
+import org.tvhsfrc.frc2022.robot.commands.autos.BasicGo5FtBackAndShoot;
 import org.tvhsfrc.frc2022.robot.commands.autos.Go5FtBack;
+import org.tvhsfrc.frc2022.robot.commands.autos.Go5FtBackAndShoot;
 import org.tvhsfrc.frc2022.robot.subsystems.*;
 import org.tvhsfrc.frc2022.robot.subsystems.ClimberSubsystem;
 import org.tvhsfrc.frc2022.robot.subsystems.DrivetrainSubsystem;
@@ -35,10 +37,11 @@ public class RobotContainer
     public final PhotonVision photonVision = new PhotonVision();
 
     // The robot's subsystems and commands are defined here...
-    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    //private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
     private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+    private final BeltSubsystem beltSubsystem = new BeltSubsystem();
 
     private Command autoCommand;
 
@@ -57,12 +60,16 @@ public class RobotContainer
 
         photonVision.fieldSetup(swerveDrivetrainModel.getField());
 
-        autoCommand = new Go5FtBack(swerveSubsystem, intakeSubsystem);
+        //autoCommand = new Go5FtBackAndShoot(swerveSubsystem, shooterSubsystem, beltSubsystem);
+        autoCommand = new BasicGo5FtBackAndShoot(swerveSubsystem, shooterSubsystem, beltSubsystem);
 
         climberSubsystem.setDefaultCommand(new ClimbCommand(
                 climberSubsystem, () -> driveController.getPOV(0) == 0, () -> driveController.getPOV(0) == 180,
                 () -> driveController.getPOV(0) == 270, () -> driveController.getPOV(0) == 90
         ));
+
+        beltSubsystem.setDefaultCommand(new BeltCommand(beltSubsystem, driveController::getLeftTriggerAxis));
+        shooterSubsystem.setDefaultCommand(new PrimitiveShootCommand(shooterSubsystem, driveController::getRightTriggerAxis));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -83,8 +90,8 @@ public class RobotContainer
         JoystickButton lTrigger = new JoystickButton(driveController, XboxController.Button.kLeftBumper.value);
         lTrigger.toggleWhenPressed(new IntakeRollerToggle(intakeSubsystem));
 
-        JoystickButton xboxButton = new JoystickButton(driveController, XboxController.Button.kStart.value);
-        xboxButton.whenPressed(new ResetGyroCommand(drivetrainSubsystem));
+        //JoystickButton xboxButton = new JoystickButton(driveController, XboxController.Button.kStart.value);
+        //xboxButton.whenPressed(new ResetGyroCommand(drivetrainSubsystem));
 
         JoystickButton lBumper = new JoystickButton(driveController, XboxController.Button.kLeftBumper.value);
         lBumper.whenHeld(new ShootCommand(shooterSubsystem));

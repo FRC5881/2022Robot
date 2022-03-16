@@ -26,7 +26,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
 
     private final CANSparkMax shooterMotor1 = new CANSparkMax(Constants.SHOOTER_MOTOR_1_ID, CANSparkMaxLowLevel.MotorType.kBrushless);
     private final CANSparkMax shooterMotor2 = new CANSparkMax(Constants.SHOOTER_MOTOR_2_ID, CANSparkMaxLowLevel.MotorType.kBrushless);
-    private final CANSparkMax beltMotor = new CANSparkMax(Constants.BELT_MOTOR_ID, CANSparkMaxLowLevel.MotorType.kBrushless);
+    //private final CANSparkMax beltMotor = new CANSparkMax(Constants.BELT_MOTOR_ID, CANSparkMaxLowLevel.MotorType.kBrushless);
 
     private final DigitalInput sensorA = new DigitalInput(Constants.INTAKE_SENSOR_A_CHANNEL);
     private final DigitalInput sensorB = new DigitalInput(Constants.INTAKE_SENSOR_B_CHANNEL);
@@ -46,9 +46,9 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
     private final SendableChooser<SHOT_LOCATION> shotLocationSendableChooser = new SendableChooser<>();
 
     public ShooterSubsystem() {
-        p = 1;
-        i = 0.001;
-        d = 0.01;
+        p = 0.005;
+        i = 0.0;
+        d = 0.02;
 
         shooterMotor1.getPIDController().setP(p);
         shooterMotor1.getPIDController().setI(i);
@@ -61,7 +61,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         shooterMotor2.getPIDController().setD(d);
         shooterMotor2.setIdleMode(CANSparkMax.IdleMode.kCoast);
 
-        beltMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        //beltMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
         shotVelocities = new HashMap<>();
         shotVelocities.put(SHOT_LOCATION.TARMAC_LINE, 3500.0);
@@ -69,8 +69,8 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         shotVelocities.put(SHOT_LOCATION.HAIL_MARY, 5500.0);
 
         shotLocationSendableChooser.addOption("Tarmac", SHOT_LOCATION.TARMAC_LINE);
-        shotLocationSendableChooser.addOption("Safe Point", SHOT_LOCATION.SAFE_POINT);
-        shotLocationSendableChooser.setDefaultOption("Hail Mary", SHOT_LOCATION.HAIL_MARY);
+        shotLocationSendableChooser.setDefaultOption("Safe Point", SHOT_LOCATION.SAFE_POINT);
+        shotLocationSendableChooser.addOption("Hail Mary", SHOT_LOCATION.HAIL_MARY);
 
         SmartDashboard.putData(shotLocationSendableChooser);
     }
@@ -82,23 +82,11 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
 
     private State state = State.EMPTY;
 
-    //TODO: rename camera
-    PhotonCamera camera = new PhotonCamera("hub");
-
-
-
-
-
-
-
-
-
-
     /**
      * Runs the intake state machine. Expected to be run by the intake command continuously.
      */
     public void runIntake() {
-        beltMotor.set(intakeSpeed);
+        //beltMotor.set(intakeSpeed);
 
         /*
         switch (state) {
@@ -179,8 +167,13 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
                 && shooterMotor2.getEncoder().getVelocity() > (getShooter1Velocity() * .95)
                 && shooterMotor1.getEncoder().getVelocity() < (getShotVelocity() * 1.1)
                 && shooterMotor2.getEncoder().getVelocity() < (getShotVelocity() * 1.1)) {
-            beltMotor.set(1);
+            //beltMotor.set(1);
         }
+    }
+
+    public void shootPercentage(double value) {
+        shooterMotor1.set(value);
+        shooterMotor2.set(value);
     }
 
     public boolean isVisionValid() {
@@ -201,7 +194,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
 
 
     public void stopShooting() {
-        beltMotor.set(0);
+        //beltMotor.set(0);
         shooterMotor1.stopMotor();
         shooterMotor2.stopMotor();
         state = State.EMPTY;
@@ -327,6 +320,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         builder.addBooleanProperty("SensorB", this::getSensorB, null);
         builder.addDoubleProperty("Shooter1Vel", this::getShooter1Velocity, null);
         builder.addDoubleProperty("Shooter2Vel", this::getShooter2Velocity, null);
+        builder.addDoubleProperty("ShotVel", this::getShotVelocity, null);
         builder.addDoubleProperty(SHOT_LOCATION.TARMAC_LINE.toString(), () -> getShotVelocity(SHOT_LOCATION.TARMAC_LINE), value -> setShotVelocity(SHOT_LOCATION.TARMAC_LINE, value));
         builder.addDoubleProperty(SHOT_LOCATION.SAFE_POINT.toString(), () -> getShotVelocity(SHOT_LOCATION.SAFE_POINT), value -> setShotVelocity(SHOT_LOCATION.SAFE_POINT, value));
         builder.addDoubleProperty(SHOT_LOCATION.HAIL_MARY.toString(), () -> getShotVelocity(SHOT_LOCATION.HAIL_MARY), value -> setShotVelocity(SHOT_LOCATION.HAIL_MARY, value));

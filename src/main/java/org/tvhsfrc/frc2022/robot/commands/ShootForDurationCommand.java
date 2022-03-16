@@ -6,16 +6,23 @@ public class ShootForDurationCommand extends ShootCommand{
     private final double durationMillis;
     private double startMillis;
 
+    private ShooterSubsystem shooterSubsystem;
+
     /**
      *
      * @param shooterSubsystem
-     * @param duration Duration in milliseconds
+     * @param durationMillis Duration in milliseconds
      */
-    public ShootForDurationCommand(ShooterSubsystem shooterSubsystem, double duration) {
+    public ShootForDurationCommand(ShooterSubsystem shooterSubsystem, double durationMillis) {
         super(shooterSubsystem);
-        durationMillis = duration*1000;
+        this.shooterSubsystem = shooterSubsystem;
+        this.durationMillis = durationMillis;
     }
 
+    @Override
+    public void execute() {
+        shooterSubsystem.shootPercentage(0.9);
+    }
 
     @Override
     public boolean isFinished() {
