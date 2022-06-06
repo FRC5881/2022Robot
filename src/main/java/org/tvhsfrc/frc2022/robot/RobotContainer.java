@@ -6,8 +6,10 @@
 package org.tvhsfrc.frc2022.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.swervelib.SwerveDrivetrainModel;
@@ -98,6 +100,9 @@ public class RobotContainer
 
         JoystickButton rBumper = new JoystickButton(driveController, XboxController.Button.kRightBumper.value);
         rBumper.whenHeld(new RollBeltCommand(shooterSubsystem));
+
+        JoystickButton start = new JoystickButton(driveController, XboxController.Button.kStart.value);
+        start.whenPressed(new ResetGyroCommand(swerveSubsystem));
     }
     
     
@@ -133,4 +138,6 @@ public class RobotContainer
 
         return value;
     }
+
+
 }

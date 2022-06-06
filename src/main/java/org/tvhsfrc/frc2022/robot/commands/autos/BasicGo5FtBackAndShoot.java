@@ -15,7 +15,7 @@ import org.tvhsfrc.frc2022.robot.subsystems.ShooterSubsystem;
 public class BasicGo5FtBackAndShoot extends SequentialCommandGroup {
     public BasicGo5FtBackAndShoot(SwerveSubsystem swerveSubsystem, ShooterSubsystem shooterSubsystem, BeltSubsystem beltSubsystem) {
         addCommands(
-                new AutoDriveCommand(swerveSubsystem, 4000, -0.5, 0, 0),
+                new AutoDriveCommand(swerveSubsystem, 1000, -5, 0, 0),
                 new ShootForDurationCommand(shooterSubsystem, 1000),
                 new ParallelCommandGroup(new ShootForDurationCommand(shooterSubsystem, 4000), new BeltForDurationCommand(beltSubsystem, 4000))
         );

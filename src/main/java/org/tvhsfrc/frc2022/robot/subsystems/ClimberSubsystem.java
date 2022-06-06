@@ -14,7 +14,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private double p,i,d;
 
-    private double climbSpeed = 0.4;
+    private double climbSpeed = 0.6;
 
     public ClimberSubsystem() {
         climberLeft.setInverted(false);
